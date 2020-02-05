@@ -70,17 +70,21 @@
         /// <param name="amount"></param>
         /// <param name="currency"></param>
         /// <returns></returns>
-        [HttpPut("[action]")]
-        public object UpdatePeriodByProperty(
-            DateTime startDate, DateTime endDate, string name, decimal amount, CurrencyTypes currency = CurrencyTypes.BGN)
+        [HttpPost("[action]")]
+        [EnableCors("MyPolicy")]
+        public object UpdatePeriodByProperty([FromBody] UpdatePeriodDTO updatePeriodDTO)
         {
             RealEstate property = null;
 
-            if (ModelState.IsValid && this._service.GetAll().Any(e => e.Name.ToLower() == name.ToLower()))
+            if (ModelState.IsValid && this._service.GetAll().Any(e => e.Name.ToLower() == updatePeriodDTO.name.ToLower()))
             {
-                property = this._service.GetPropertyByName(name);
+                property = this._service.GetPropertyByName(updatePeriodDTO.name);
 
-                var availablePeriod = new AvailablePeriod(startDate, endDate, amount, currency);
+                var availablePeriod = new AvailablePeriod(
+                    updatePeriodDTO.startDate, 
+                    updatePeriodDTO.endDate, 
+                    updatePeriodDTO.amount, 
+                    updatePeriodDTO.currency);
                 availablePeriod.PropertyName = property.Name;
 
                 property.Calendar.Add(availablePeriod);
